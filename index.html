@@ -116,20 +116,121 @@
 
 <script>
 const BONES = [
-  { id:'radius', name:'橈骨', en:'RADIUS', grp:'grp-long', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'ulna', name:'尺骨', en:'ULNA', grp:'grp-long', stages:['A','B','C','D','E','F','G','H'] },
-  { id:'mc1', name:'第1中手骨', en:'META.I', grp:'grp-mc', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'mc3', name:'第3中手骨', en:'META.III', grp:'grp-mc', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'mc5', name:'第5中手骨', en:'META.V', grp:'grp-mc', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'pp1', name:'基節骨（母指）', en:'PROX.I', grp:'grp-pp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'pp3', name:'基節骨（中指）', en:'PROX.III', grp:'grp-pp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'pp5', name:'基節骨（小指）', en:'PROX.V', grp:'grp-pp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'mp3', name:'中節骨（中指）', en:'MID.III', grp:'grp-mp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'mp5', name:'中節骨（小指）', en:'MID.V', grp:'grp-mp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'dp1', name:'末節骨（母指）', en:'DIST.I', grp:'grp-dp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'dp3', name:'末節骨（中指）', en:'DIST.III', grp:'grp-dp', stages:['A','B','C','D','E','F','G','H','I'] },
-  { id:'dp5', name:'末節骨（小指）', en:'DIST.V', grp:'grp-dp', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'radius', name:'橈骨', en:'RADIUS', grp:'grp-long', guide:'radius', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'ulna', name:'尺骨', en:'ULNA', grp:'grp-long', guide:'ulna', stages:['A','B','C','D','E','F','G','H'] },
+  { id:'mc1', name:'第1中手骨', en:'META.I', grp:'grp-mc', guide:'mc1', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'mc3', name:'第3中手骨', en:'META.III', grp:'grp-mc', guide:'mc35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'mc5', name:'第5中手骨', en:'META.V', grp:'grp-mc', guide:'mc35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'pp1', name:'基節骨（母指）', en:'PROX.I', grp:'grp-pp', guide:'pp1', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'pp3', name:'基節骨（中指）', en:'PROX.III', grp:'grp-pp', guide:'pp35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'pp5', name:'基節骨（小指）', en:'PROX.V', grp:'grp-pp', guide:'pp35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'mp3', name:'中節骨（中指）', en:'MID.III', grp:'grp-mp', guide:'mp35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'mp5', name:'中節骨（小指）', en:'MID.V', grp:'grp-mp', guide:'mp35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'dp1', name:'末節骨（母指）', en:'DIST.I', grp:'grp-dp', guide:'dp1', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'dp3', name:'末節骨（中指）', en:'DIST.III', grp:'grp-dp', guide:'dp35', stages:['A','B','C','D','E','F','G','H','I'] },
+  { id:'dp5', name:'末節骨（小指）', en:'DIST.V', grp:'grp-dp', guide:'dp35', stages:['A','B','C','D','E','F','G','H','I'] },
 ];
+
+const STAGE_GUIDE = {
+  radius: {
+    A: '骨核なし',
+    B: '骨化核出現（小球状）',
+    C: '卵円形で境界が明瞭',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '外側へ広がり白線が出現',
+    F: '骨端板が皮質より薄い',
+    G: '関節縁が明瞭で近位縁が整う',
+    H: '骨端が骨幹端を帽状に覆う',
+    I: '完全癒合'
+  },
+  ulna: {
+    A: '骨核なし',
+    B: '骨化核出現',
+    C: '円形で輪郭が滑らか',
+    D: '横長で骨幹端幅の約1/2以上',
+    E: '茎状突起側へ伸び始める',
+    F: '骨端板が皮質より薄い',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '完全癒合'
+  },
+  mc1: {
+    A: '骨核なし',
+    B: '骨化核出現',
+    C: '中央に透亮帯をもつ円盤状',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '骨端幅が骨幹端幅以上で近位縁に凹み',
+    F: '骨端板が皮質より薄い',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  mc35: {
+    A: '骨核なし',
+    B: '骨化核出現',
+    C: '円盤状で骨幹端幅の約1/2以上',
+    D: '骨端幅が骨幹端幅以上',
+    E: '骨端外形がスペード状になる',
+    F: '骨端板が皮質より薄い',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  pp1: {
+    A: '骨核なし',
+    B: '骨化核出現（小円形）',
+    C: '複数石灰化を含む円盤状',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '近位縁が厚く中央凹の楔状',
+    F: '内側半が広く骨幹端幅以上',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  pp35: {
+    A: '骨核なし',
+    B: '骨化核出現',
+    C: '円盤状で境界が明瞭',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '中央凹の厚い近位縁をもつ',
+    F: '骨端幅が骨幹端幅以上',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  mp35: {
+    A: '骨核なし',
+    B: '骨化核出現',
+    C: '円盤状で境界が明瞭',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '滑車状の形が現れ始める',
+    F: '骨端幅が骨幹端幅以上',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  dp1: {
+    A: '骨核なし',
+    B: '骨化核出現（小点状）',
+    C: '円盤状で中央透亮帯を伴う',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '遠位縁が平坦で近位縁が角張る',
+    F: '関節面の凹みが明瞭になり幅が増す',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  },
+  dp35: {
+    A: '骨核なし',
+    B: '骨化核出現（小点状）',
+    C: '円盤状で境界が明瞭',
+    D: '骨端幅が骨幹端の約1/2以上',
+    E: '近位縁が成長し左右差が出る',
+    F: '掌側・背側の縁が明瞭になる',
+    G: '骨端が骨幹端を帽状に覆う',
+    H: '癒合が進行',
+    I: '完全癒合'
+  }
+};
 
 const SCORE_TABLE = {
   male: {
@@ -250,6 +351,11 @@ function formatAgeFromDecimal(decimalAge) {
   return months > 0 ? `${years}歳${months}ヵ月` : `${years}歳`;
 }
 
+function stageLabel(bone, stage) {
+  const guide = STAGE_GUIDE[bone.guide]?.[stage];
+  return guide ? `${stage}: ${guide}` : `ステージ ${stage}`;
+}
+
 function renderBones() {
   BONES.forEach(bone => {
     const container = document.getElementById(bone.grp);
@@ -269,7 +375,7 @@ function renderBones() {
                focus:outline-none focus:ring-2 focus:ring-blue-300">
         <option value="">— 未選択 —</option>
         ${bone.stages.map(stage =>
-          `<option value="${stage}">ステージ ${stage}</option>`
+          `<option value="${stage}">${stageLabel(bone, stage)}</option>`
         ).join('')}
       </select>`;
     container.appendChild(el);
