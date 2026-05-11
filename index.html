@@ -75,22 +75,24 @@
   <div class="bg-white shadow px-6 py-4 mt-0.5">
     <h2 class="text-base font-semibold text-gray-700 mb-3">判定結果</h2>
     <div class="grid grid-cols-2 gap-4 mb-3">
-      <div class="bg-blue-50 rounded-xl p-4 text-center">
+      <div id="scoreCard" class="bg-blue-50 rounded-xl p-4 text-center transition-opacity">
         <div class="text-xs text-blue-500 font-medium mb-1">RUS 合計スコア</div>
-        <div id="totalScore" class="text-5xl font-bold text-blue-800">0</div>
+        <div id="totalScore" class="text-5xl font-bold text-blue-800">—</div>
         <div class="text-xs text-gray-400 mt-1">最大 1000 点</div>
       </div>
-      <div class="bg-emerald-50 rounded-xl p-4 text-center">
+      <div id="ageCard" class="bg-emerald-50 rounded-xl p-4 text-center transition-opacity">
         <div class="text-xs text-emerald-500 font-medium mb-1">骨年齢（日本人標準値）</div>
         <div id="boneAge" class="text-5xl font-bold text-emerald-800">—</div>
         <div id="boneAgeDecimal" class="text-xs text-gray-400 mt-1"></div>
       </div>
     </div>
+    <p id="resultNotice" class="text-xs text-amber-700 text-center">全13骨を入力すると結果を表示します。</p>
   </div>
 
   <!-- Score Breakdown -->
   <div class="bg-white shadow px-6 py-4 mt-0.5">
     <h2 class="text-base font-semibold text-gray-700 mb-2">スコア内訳</h2>
+    <p id="breakdownNotice" class="text-xs text-amber-700 mb-3">全13骨を入力するまで内訳は表示されません。</p>
     <div id="breakdown" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-1.5 text-sm"></div>
   </div>
 
@@ -385,16 +387,27 @@ function renderBones() {
 function calculate() {
   const sex = getSelectedSex();
   let total = 0;
+  let completedCount = 0;
+  const selections = {};
 
   BONES.forEach(bone => {
     const sel = document.getElementById(`sel_${bone.id}`);
-    const scEl = document.getElementById(`sc_${bone.id}`);
     const stage = sel ? sel.value : '';
+    selections[bone.id] = stage;
+    if (stage) completedCount += 1;
     const score = getBoneScore(bone.id, sex, stage);
     total += score;
+  });
+
+  const isComplete = completedCount === BONES.length;
+
+  BONES.forEach(bone => {
+    const scEl = document.getElementById(`sc_${bone.id}`);
+    const stage = selections[bone.id];
+    const score = getBoneScore(bone.id, sex, stage);
 
     if (scEl) {
-      if (stage) {
+      if (isComplete && stage) {
         scEl.textContent = `${score}点`;
         scEl.className = 'text-sm font-bold text-blue-700 whitespace-nowrap ml-2';
       } else {
@@ -404,10 +417,31 @@ function calculate() {
     }
   });
 
-  document.getElementById('totalScore').textContent = total;
-
+  const totalScoreEl = document.getElementById('totalScore');
   const boneAgeEl = document.getElementById('boneAge');
   const boneAgeDecimalEl = document.getElementById('boneAgeDecimal');
+  const resultNoticeEl = document.getElementById('resultNotice');
+  const breakdownNoticeEl = document.getElementById('breakdownNotice');
+  const scoreCardEl = document.getElementById('scoreCard');
+  const ageCardEl = document.getElementById('ageCard');
+
+  if (!isComplete) {
+    totalScoreEl.textContent = '—';
+    boneAgeEl.textContent = '—';
+    boneAgeDecimalEl.textContent = '';
+    resultNoticeEl.textContent = `全13骨のうち ${completedCount} 骨を入力済みです。すべて入力すると結果を表示します。`;
+    breakdownNoticeEl.textContent = '全13骨を入力するまで内訳は表示されません。';
+    scoreCardEl.classList.add('opacity-60');
+    ageCardEl.classList.add('opacity-60');
+    renderBreakdown(sex, false, selections);
+    return;
+  }
+
+  scoreCardEl.classList.remove('opacity-60');
+  ageCardEl.classList.remove('opacity-60');
+  resultNoticeEl.textContent = '';
+  breakdownNoticeEl.textContent = '';
+  totalScoreEl.textContent = total;
 
   if (total <= 0) {
     boneAgeEl.textContent = '—';
@@ -426,14 +460,18 @@ function calculate() {
     }
   }
 
-  renderBreakdown(sex);
+  renderBreakdown(sex, true, selections);
 }
 
-function renderBreakdown(sex) {
+function renderBreakdown(sex, isComplete, selections = {}) {
   const el = document.getElementById('breakdown');
+  if (!isComplete) {
+    el.innerHTML = '';
+    return;
+  }
+
   el.innerHTML = BONES.map(bone => {
-    const sel = document.getElementById(`sel_${bone.id}`);
-    const stage = sel ? sel.value : '';
+    const stage = selections[bone.id] ?? '';
     const score = stage ? getBoneScore(bone.id, sex, stage) : null;
     return `<div class="flex justify-between items-center bg-gray-50 rounded px-2.5 py-1.5">
       <span class="text-gray-600 text-xs truncate mr-1">${bone.name}</span>
